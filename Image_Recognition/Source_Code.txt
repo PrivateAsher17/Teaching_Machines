@@ -1,0 +1,119 @@
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+from functools import reduce
+import pandas
+from collections import Counter
+from pylab import array,split,loadtxt
+
+
+def createExamples():
+    numberArrayExamples = open('\git\Teaching_Machines\Image_Recognition\data.txt','a')
+    numberswehave = range(0, 10)
+    versionswehave = range(1, 10)
+    for eachnum in numberswehave:
+        for eachver in versionswehave:
+ #           print(str (eachnum)+'.'+ str (eachver))
+ #   for numberswehave in range(0,10):
+  #      for versionswehave in range(1,10):
+            #print(str(eachnum)+'.'+ str (eachver))
+            imgfilepath = '/git/Teaching_Machines/Image_Recognition/Raw_Dataset/'+str(eachnum)+'.'+ str (eachver) + '.png'
+            ei = Image.open(imgfilepath)
+            eiar = np.array(ei)
+            #This is in array
+            #print('eiar is : ',eiar)
+            eiar1 = eiar.tolist()
+            eiar1 = str(eiar1)
+            #array is converted into list.
+            #print('eiar.list is : ', eiar1)
+            # print(str(eachnum))
+            linetowrite = str(eachnum)+  '::'  + eiar1 + '\n'
+            numberArrayExamples.write(linetowrite)
+
+            #plt.show(numberArrayExamples), Not needed
+
+
+        '''Pandas Series.tolist() Python is a great language for doing data analysis, 
+        primarily because of the fantastic ecosystem of data-centric Python packages. 
+        Pandas is one of those packages and makes importing and analyzing data much easier. 
+        Pandas tolist() is used to convert a series to list.'''
+
+
+
+
+# print(createExamples())
+
+
+def threshold(imageArray):
+    balanceAr =[]
+    newAr = imageArray
+    for eachRow in imageArray:
+        for eachPix in eachRow:
+            avgNum = reduce(lambda x,y : x+y,eachPix[:3])/len(eachPix[:3])
+            balanceAr.append(avgNum)
+    balance=reduce(lambda x,y : x+y,balanceAr)/len(balanceAr)
+    for eachRow in newAr:
+        for eachPix in eachRow:
+            if (reduce(lambda x,y : x+y,eachPix[:3])/len(eachPix[:3])>balance):
+                eachPix[0]=255;
+                eachPix[1]=255;
+                eachPix[2]=255;
+                eachPix[3]=255;
+            else:
+                eachPix[0]=0;
+                eachPix[1]=0;
+                eachPix[2]=0;
+                eachPix[3]=255;
+    return newAr
+
+
+
+
+
+def whatnumisthis(filepath):
+    matchedar = []
+    loadexamps = open('/git/Teaching_Machines/Image_Recognition/Data.txt','r').read()
+#     print(type(loadexamps))
+    loadexamps = loadexamps.split('\n')
+#     for j in range(90):
+#         splitex = loadexamps[j].split('::')
+#         print("number",splitex[0])
+#         print("corres. data",splitex[1])
+    
+    
+    
+    
+    i=Image.open(filepath)
+    iar = np.array(i)
+    threshold(iar)
+    iarL = iar.tolist()
+    inQuestion = str(iarL)
+#     print(inQuestion)
+#     from matplotlib.pyplot
+    eachpixq = inQuestion.split('],')
+#     print(eachpixq[0])
+
+    for eachex in loadexamps:
+        if len(eachex) > 3:
+            for j in range(90):
+                splitex = loadexamps[j].split('::')
+                currentnum = splitex[0]          
+#                 print(currentnum)
+                currentar = splitex[1]
+                eachpixex = currentar.split('],')
+#                 print(len(eachpixex))
+
+                x=0
+                while x<len(eachpixex):
+                    if eachpixex[x] == eachpixq[x]:
+                        matchedar.append(int(currentnum) )
+                    x=x+1
+
+#     print(matchedar)
+    y=Counter(matchedar)
+    print(y)
+
+
+whatnumisthis('/git/Teaching_Machines/Image_Recognition/Test_Data.png')
+
